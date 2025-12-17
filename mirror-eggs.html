@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Egg Wars - Ultimate Castle Defense</title>
+    <title>Mirror Eggs - Castle Defense</title>
     <style>
         * {
             margin: 0;
@@ -558,6 +558,27 @@
         .diff-btn.easy.selected { background: #10b981; }
         .diff-btn.normal.selected { background: #f59e0b; }
         .diff-btn.hard.selected { background: #ef4444; }
+
+        .creator-credit {
+            margin-top: 2rem;
+            color: #555;
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        .menu-buttons {
+            margin-bottom: 1.5rem;
+        }
+
+        .difficulty-select {
+            margin-bottom: 1.5rem;
+        }
+
+        .instructions-box {
+            max-width: 340px;
+            margin-left: auto;
+            margin-right: auto;
+        }
     </style>
 </head>
 <body>
@@ -565,8 +586,20 @@
         <div class="logo-container">
             <div class="logo-egg">🍳</div>
         </div>
-        <h1>EGG WARS</h1>
-        <p class="subtitle">Ultimate Castle Defense</p>
+        <h1>MIRROR EGGS</h1>
+        <p class="subtitle">Spejlæg Castle Defense</p>
+
+        <div class="menu-buttons">
+            <button class="menu-btn primary" onclick="startGame('single')" onmouseenter="showInstructions('solo')" onmouseleave="showInstructions('solo')">
+                Solo Campaign
+            </button>
+            <button class="menu-btn secondary" onclick="startGame('endless')" onmouseenter="showInstructions('solo')" onmouseleave="showInstructions('solo')">
+                Endless Mode
+            </button>
+            <button class="menu-btn tertiary" onclick="startGame('multi')" onmouseenter="showInstructions('multi')" onmouseleave="showInstructions('solo')">
+                2 Player Battle
+            </button>
+        </div>
 
         <div class="difficulty-select">
             <button class="diff-btn easy" onclick="setDifficulty('easy')">Easy</button>
@@ -574,32 +607,19 @@
             <button class="diff-btn hard" onclick="setDifficulty('hard')">Hard</button>
         </div>
 
-        <div class="menu-buttons">
-            <button class="menu-btn primary" onclick="startGame('single')">
-                Campaign Mode
-            </button>
-            <button class="menu-btn secondary" onclick="startGame('endless')">
-                Endless Survival
-            </button>
-            <button class="menu-btn tertiary" onclick="startGame('multi')">
-                2 Player Battle
-            </button>
+        <div class="instructions-box" id="soloInstructions">
+            <p><span>🖱️</span> Click & drag to aim, release to fire</p>
+            <p><span>🥚</span> Hit egg warriors twice to defeat them</p>
+            <p><span>💰</span> Earn coins for upgrades & repairs</p>
         </div>
 
-        <div class="instructions-box">
-            <p><span>🖱️</span> Click & drag to aim your spatula catapult</p>
-            <p><span>🥚</span> Launch fried eggs to eliminate enemy warriors</p>
-            <p><span>💰</span> Earn coins to upgrade and repair your castle</p>
-            <p><span>⚡</span> Unlock special abilities and power-ups</p>
-            <p><span>🏆</span> Survive waves of increasingly tough enemies</p>
+        <div class="instructions-box" id="multiInstructions" style="display: none;">
+            <p style="color: #4ecdc4;"><span>🔵</span> P1: A/D aim, W/S power, SPACE fire</p>
+            <p style="color: #ff6b6b;"><span>🔴</span> P2: ←/→ aim, ↑/↓ power, ENTER fire</p>
+            <p style="color: #888; font-size: 0.85rem;">Mouse: P1 left-click, P2 right-click drag</p>
         </div>
 
-        <div class="instructions-box" style="margin-top: 1rem;">
-            <p style="color: #4ecdc4; font-weight: bold; margin-bottom: 0.5rem;">2 Player Controls:</p>
-            <p><span>🔵</span> P1: A/D aim, W/S power, SPACE fire</p>
-            <p><span>🔴</span> P2: ←/→ aim, ↑/↓ power, ENTER fire</p>
-            <p style="color: #888; font-size: 0.85rem; margin-top: 0.5rem;">Or use mouse: P1 left-click, P2 right-click</p>
-        </div>
+        <p class="creator-credit">Created by Leonski</p>
     </div>
 
     <div id="gameContainer">
@@ -653,10 +673,10 @@
 
         <div id="bottomHUD">
             <button class="action-btn repair-btn" id="repairBtn" onclick="repair()">
-                <span>🔧</span> Repair P1 (25)
+                <span>🔧</span> Repair (25)
             </button>
             <button class="action-btn repair-btn" id="repairBtn2" onclick="repair(2)" style="display: none;">
-                <span>🔧</span> Repair P2 (25)
+                <span>🔧</span> P2 Repair (25)
             </button>
             <button class="action-btn upgrade-btn" onclick="toggleUpgradePanel()">
                 <span>⬆️</span> Upgrades
@@ -684,6 +704,7 @@
             <h2 id="winnerText">Victory!</h2>
             <p class="stats" id="gameStats"></p>
             <button class="menu-btn primary" onclick="backToMenu()">Play Again</button>
+            <p style="color: #555; font-size: 0.8rem; margin-top: 1.5rem; font-style: italic;">Mirror Eggs by Leonski</p>
         </div>
 
         <div class="screen-flash" id="screenFlash"></div>
@@ -889,6 +910,11 @@
             document.querySelector(`.diff-btn.${diff}`).classList.add('selected');
         }
 
+        function showInstructions(type) {
+            document.getElementById('soloInstructions').style.display = type === 'solo' ? 'block' : 'none';
+            document.getElementById('multiInstructions').style.display = type === 'multi' ? 'block' : 'none';
+        }
+
         function startGame(mode) {
             gameMode = mode;
             document.getElementById('menu').style.display = 'none';
@@ -899,12 +925,21 @@
             audio.init();
 
             // Update UI based on mode
+            const repairBtn = document.getElementById('repairBtn');
             if (mode === 'single' || mode === 'endless') {
                 document.getElementById('p2Name').textContent = 'ENEMY';
                 document.getElementById('repairBtn2').style.display = 'none';
+                repairBtn.innerHTML = '<span>🔧</span> Repair (25)';
+                // Show upgrades and special in solo modes
+                document.querySelector('.upgrade-btn').style.display = 'flex';
+                document.getElementById('specialBtn').style.display = 'flex';
             } else {
                 document.getElementById('p2Name').textContent = 'PLAYER 2';
                 document.getElementById('repairBtn2').style.display = 'flex';
+                repairBtn.innerHTML = '<span>🔧</span> P1 Repair (25)';
+                // Hide upgrades and special in multiplayer for fairness
+                document.querySelector('.upgrade-btn').style.display = 'none';
+                document.getElementById('specialBtn').style.display = 'none';
             }
 
             initGame();
@@ -940,7 +975,7 @@
                     lastShot: 0,
                     upgrades: { damage: 0, speed: 0, splash: 0, income: 0, special: 0 },
                     specialCooldown: 0,
-                    spatula: { angle: -45, targetAngle: -45 }
+                    spatula: { angle: 225, targetAngle: 225 }
                 },
                 {
                     health: 100,
@@ -2288,6 +2323,13 @@
 
             ctx.save();
             ctx.translate(tower.x + tower.width / 2, tower.y + 45);
+
+            // For player 1 (left), flip horizontally so spatula points right
+            // For player 2 (right), keep normal so spatula points left
+            if (index === 0) {
+                ctx.scale(-1, 1);
+            }
+
             ctx.rotate(player.spatula.angle * Math.PI / 180);
 
             // Handle shadow
