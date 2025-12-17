@@ -593,6 +593,13 @@
             <p><span>⚡</span> Unlock special abilities and power-ups</p>
             <p><span>🏆</span> Survive waves of increasingly tough enemies</p>
         </div>
+
+        <div class="instructions-box" style="margin-top: 1rem;">
+            <p style="color: #4ecdc4; font-weight: bold; margin-bottom: 0.5rem;">2 Player Controls:</p>
+            <p><span>🔵</span> P1: A/D aim, W/S power, SPACE fire</p>
+            <p><span>🔴</span> P2: ←/→ aim, ↑/↓ power, ENTER fire</p>
+            <p style="color: #888; font-size: 0.85rem; margin-top: 0.5rem;">Or use mouse: P1 left-click, P2 right-click</p>
+        </div>
     </div>
 
     <div id="gameContainer">
@@ -646,7 +653,10 @@
 
         <div id="bottomHUD">
             <button class="action-btn repair-btn" id="repairBtn" onclick="repair()">
-                <span>🔧</span> Repair (25)
+                <span>🔧</span> Repair P1 (25)
+            </button>
+            <button class="action-btn repair-btn" id="repairBtn2" onclick="repair(2)" style="display: none;">
+                <span>🔧</span> Repair P2 (25)
             </button>
             <button class="action-btn upgrade-btn" onclick="toggleUpgradePanel()">
                 <span>⬆️</span> Upgrades
@@ -847,6 +857,18 @@
         let clouds = [];
         let stars = [];
 
+        // Keyboard controls state
+        let keys = {
+            // Player 1
+            a: false, d: false, w: false, s: false, space: false,
+            // Player 2
+            left: false, right: false, up: false, down: false, enter: false
+        };
+        let keyboardAim = [
+            { angle: 45, power: 15 },  // Player 1
+            { angle: 135, power: 15 }  // Player 2
+        ];
+
         // Castle and tower positions
         const castles = [
             { x: 30, y: CONFIG.GROUND_Y - 180, width: 130, height: 180 },
@@ -879,8 +901,10 @@
             // Update UI based on mode
             if (mode === 'single' || mode === 'endless') {
                 document.getElementById('p2Name').textContent = 'ENEMY';
+                document.getElementById('repairBtn2').style.display = 'none';
             } else {
                 document.getElementById('p2Name').textContent = 'PLAYER 2';
+                document.getElementById('repairBtn2').style.display = 'flex';
             }
 
             initGame();
@@ -956,6 +980,16 @@
             canvas.ontouchstart = handleTouchStart;
             canvas.ontouchmove = handleTouchMove;
             canvas.ontouchend = handleTouchEnd;
+
+            // Keyboard support
+            document.onkeydown = handleKeyDown;
+            document.onkeyup = handleKeyUp;
+
+            // Reset keyboard aim
+            keyboardAim = [
+                { angle: 45, power: 15 },
+                { angle: 135, power: 15 }
+            ];
 
             gameRunning = true;
             gamePaused = false;
@@ -1060,6 +1094,133 @@
             handleMouseUp({ button: 0 });
         }
 
+        function handleKeyDown(e) {
+            if (gamePaused) return;
+
+            const key = e.key.toLowerCase();
+
+            // Player 1 controls
+            if (key === 'a') keys.a = true;
+            if (key === 'd') keys.d = true;
+            if (key === 'w') keys.w = true;
+            if (key === 's') keys.s = true;
+            if (key === ' ' && !keys.space) {
+                keys.space = true;
+                e.preventDefault();
+            }
+
+            // Player 2 controls
+            if (key === 'arrowleft') { keys.left = true; e.preventDefault(); }
+            if (key === 'arrowright') { keys.right = true; e.preventDefault(); }
+            if (key === 'arrowup') { keys.up = true; e.preventDefault(); }
+            if (key === 'arrowdown') { keys.down = true; e.preventDefault(); }
+            if (key === 'enter' && !keys.enter) {
+                keys.enter = true;
+                e.preventDefault();
+            }
+
+            // Pause with Escape
+            if (key === 'escape') {
+                togglePause();
+            }
+        }
+
+        function handleKeyUp(e) {
+            const key = e.key.toLowerCase();
+
+            // Player 1 controls
+            if (key === 'a') keys.a = false;
+            if (key === 'd') keys.d = false;
+            if (key === 'w') keys.w = false;
+            if (key === 's') keys.s = false;
+            if (key === ' ') {
+                if (keys.space) {
+                    fireEggKeyboard(0);
+                }
+                keys.space = false;
+            }
+
+            // Player 2 controls
+            if (key === 'arrowleft') keys.left = false;
+            if (key === 'arrowright') keys.right = false;
+            if (key === 'arrowup') keys.up = false;
+            if (key === 'arrowdown') keys.down = false;
+            if (key === 'enter') {
+                if (keys.enter && gameMode === 'multi') {
+                    fireEggKeyboard(1);
+                }
+                keys.enter = false;
+            }
+        }
+
+        function updateKeyboardControls(dt) {
+            // Player 1 aim adjustment
+            if (keys.a) keyboardAim[0].angle = Math.max(10, keyboardAim[0].angle - 1.5 * dt);
+            if (keys.d) keyboardAim[0].angle = Math.min(80, keyboardAim[0].angle + 1.5 * dt);
+            if (keys.w) keyboardAim[0].power = Math.min(CONFIG.MAX_POWER, keyboardAim[0].power + 0.5 * dt);
+            if (keys.s) keyboardAim[0].power = Math.max(5, keyboardAim[0].power - 0.5 * dt);
+
+            // Player 2 aim adjustment (only in multiplayer)
+            if (gameMode === 'multi') {
+                if (keys.left) keyboardAim[1].angle = Math.min(170, keyboardAim[1].angle + 1.5 * dt);
+                if (keys.right) keyboardAim[1].angle = Math.max(100, keyboardAim[1].angle - 1.5 * dt);
+                if (keys.up) keyboardAim[1].power = Math.min(CONFIG.MAX_POWER, keyboardAim[1].power + 0.5 * dt);
+                if (keys.down) keyboardAim[1].power = Math.max(5, keyboardAim[1].power - 0.5 * dt);
+            }
+        }
+
+        function fireEggKeyboard(playerIndex) {
+            const player = players[playerIndex];
+            const now = performance.now();
+            const cooldown = UPGRADES.speed.effect[player.upgrades.speed];
+
+            if (now - player.lastShot < cooldown) return;
+
+            const aim = keyboardAim[playerIndex];
+            const tower = towers[playerIndex];
+            const startX = tower.x + tower.width / 2;
+            const startY = tower.y + 40;
+
+            const angleRad = aim.angle * Math.PI / 180;
+            const vx = Math.cos(angleRad) * aim.power;
+            const vy = -Math.sin(angleRad) * aim.power;
+
+            eggs.push({
+                x: startX,
+                y: startY,
+                vx: playerIndex === 0 ? Math.abs(vx) : -Math.abs(vx),
+                vy: vy,
+                owner: playerIndex,
+                rotation: 0,
+                damage: UPGRADES.damage.effect[player.upgrades.damage],
+                splash: UPGRADES.splash.effect[player.upgrades.splash]
+            });
+
+            // Spatula animation
+            player.spatula.targetAngle = playerIndex === 0 ? 45 : 135;
+            setTimeout(() => {
+                player.spatula.targetAngle = playerIndex === 0 ? -45 : 225;
+            }, 150);
+
+            player.lastShot = now;
+
+            // Launch particles
+            for (let i = 0; i < 8; i++) {
+                particles.push({
+                    x: startX,
+                    y: startY,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8 - 3,
+                    life: 25,
+                    color: '#ffd93d',
+                    size: 4 + Math.random() * 3,
+                    type: 'spark'
+                });
+            }
+
+            audio.play('shoot');
+        }
+
         // ============================================
         // GAME ACTIONS
         // ============================================
@@ -1121,13 +1282,14 @@
             audio.play('shoot');
         }
 
-        function repair() {
-            const player = players[0];
+        function repair(playerNum = 1) {
+            const playerIndex = playerNum - 1;
+            const player = players[playerIndex];
             if (player.coins >= CONFIG.REPAIR_COST && player.health < player.maxHealth) {
                 player.coins -= CONFIG.REPAIR_COST;
                 player.health = Math.min(player.maxHealth, player.health + CONFIG.REPAIR_AMOUNT);
 
-                createRepairEffect(0);
+                createRepairEffect(playerIndex);
                 audio.play('coin');
                 updateHUD();
             }
@@ -1266,12 +1428,13 @@
             const diffSettings = CONFIG.difficulties[difficulty];
 
             if (side === null) {
-                side = Math.random() < 0.5 ? 0 : 1;
-            }
-
-            // In single player or endless, only spawn enemies going toward player
-            if ((gameMode === 'single' || gameMode === 'endless') && side === 1) {
-                side = 0;
+                if (gameMode === 'multi') {
+                    // In multiplayer, spawn from both sides
+                    side = Math.random() < 0.5 ? 0 : 1;
+                } else {
+                    // In single player or endless, spawn from the RIGHT (enemy) side going toward player
+                    side = 1;
+                }
             }
 
             // Determine warrior type based on wave
@@ -1296,7 +1459,7 @@
                 maxHealth: Math.ceil(template.health * diffSettings.healthMult),
                 speed: template.speed * diffSettings.speed,
                 damage: template.damage * diffSettings.damage,
-                direction: side === 0 ? 1 : -1,
+                direction: side === 0 ? 1 : -1,  // side 0 goes right, side 1 goes left
                 owner: side,
                 type: type,
                 size: template.size,
@@ -1305,7 +1468,8 @@
                 frame: 0,
                 frameTime: 0,
                 wobble: Math.random() * Math.PI * 2,
-                hitFlash: 0
+                hitFlash: 0,
+                bounceCount: 0  // Track how many times warrior has bounced
             });
 
             waveEnemiesSpawned++;
@@ -1341,6 +1505,9 @@
         function updateGame(deltaTime) {
             const dt = deltaTime / 16.67; // Normalize to ~60fps
             const diffSettings = CONFIG.difficulties[difficulty];
+
+            // Update keyboard controls
+            updateKeyboardControls(dt);
 
             // Update wave system
             if (!betweenWaves) {
@@ -1413,23 +1580,60 @@
                     warrior.frameTime = 0;
                 }
 
-                // Check castle collision
-                const targetCastle = warrior.direction === 1 ? 1 : 0;
-                const castle = castles[targetCastle];
+                // Check castle collision - bounce and damage
+                const leftBoundary = castles[0].x + castles[0].width + 30;
+                const rightBoundary = castles[1].x - 30;
 
-                if ((warrior.direction === 1 && warrior.x >= castle.x - 30) ||
-                    (warrior.direction === -1 && warrior.x <= castle.x + castle.width + 30)) {
-
-                    players[targetCastle].health -= warrior.damage;
-                    createExplosion(warrior.x, warrior.y, '#ff6b6b', 15);
-                    addScreenShake(warrior.damage);
+                // Hit left castle (player 1's castle)
+                if (warrior.direction === -1 && warrior.x <= leftBoundary) {
+                    players[0].health -= warrior.damage;
+                    createExplosion(warrior.x, warrior.y, '#ff6b6b', 10);
+                    addScreenShake(warrior.damage * 0.5);
                     audio.play('damage');
+                    flashScreen('rgba(255, 0, 0, 0.2)');
 
-                    if (targetCastle === 0) {
-                        flashScreen('rgba(255, 0, 0, 0.2)');
+                    // Bounce back
+                    warrior.direction = 1;
+                    warrior.x = leftBoundary + 5;
+                    warrior.bounceCount++;
+
+                    floatingTexts.push({
+                        x: warrior.x,
+                        y: warrior.y - 40,
+                        text: `-${Math.floor(warrior.damage)} HP`,
+                        color: '#ff6b6b',
+                        size: 18,
+                        life: 45
+                    });
+                }
+
+                // Hit right castle (player 2's castle / enemy base in single player)
+                if (warrior.direction === 1 && warrior.x >= rightBoundary) {
+                    if (gameMode === 'multi') {
+                        players[1].health -= warrior.damage;
+                        createExplosion(warrior.x, warrior.y, '#ff6b6b', 10);
+                        addScreenShake(warrior.damage * 0.5);
+                        audio.play('damage');
+
+                        floatingTexts.push({
+                            x: warrior.x,
+                            y: warrior.y - 40,
+                            text: `-${Math.floor(warrior.damage)} HP`,
+                            color: '#ff6b6b',
+                            size: 18,
+                            life: 45
+                        });
                     }
 
-                    warriors.splice(i, 1);
+                    // Bounce back
+                    warrior.direction = -1;
+                    warrior.x = rightBoundary - 5;
+                    warrior.bounceCount++;
+                }
+
+                // Speed up warriors slightly after each bounce (they get angrier!)
+                if (warrior.bounceCount > 0) {
+                    warrior.speed = WARRIOR_TYPES[warrior.type].speed * CONFIG.difficulties[difficulty].speed * (1 + warrior.bounceCount * 0.1);
                 }
             }
 
@@ -1598,8 +1802,16 @@
             updateHUD();
 
             // Check win/lose conditions
-            if (players[0].health <= 0) {
-                endGame(false);
+            if (gameMode === 'multi') {
+                // In multiplayer, end when either player dies
+                if (players[0].health <= 0 || players[1].health <= 0) {
+                    endGame(false);
+                }
+            } else {
+                // In single player, end when player 1 dies
+                if (players[0].health <= 0) {
+                    endGame(false);
+                }
             }
         }
 
@@ -1658,11 +1870,24 @@
 
             document.getElementById('p2HealthBar').style.width = `${Math.max(0, p2.health)}%`;
             document.getElementById('p2HealthText').textContent = Math.max(0, Math.floor(p2.health));
-            document.getElementById('p2Coins').textContent = p2.kills * 10; // Display score for enemy
-            document.getElementById('p2Kills').textContent = '-';
+
+            // In multiplayer, show P2's actual coins. In single player, show enemy score
+            if (gameMode === 'multi') {
+                document.getElementById('p2Coins').textContent = p2.coins;
+                document.getElementById('p2Kills').textContent = p2.kills;
+            } else {
+                document.getElementById('p2Coins').textContent = '-';
+                document.getElementById('p2Kills').textContent = '-';
+            }
 
             // Update button states
             document.getElementById('repairBtn').disabled = p1.coins < CONFIG.REPAIR_COST || p1.health >= p1.maxHealth;
+
+            // P2 repair button (only in multiplayer)
+            const repairBtn2 = document.getElementById('repairBtn2');
+            if (gameMode === 'multi') {
+                repairBtn2.disabled = p2.coins < CONFIG.REPAIR_COST || p2.health >= p2.maxHealth;
+            }
 
             const specialBtn = document.getElementById('specialBtn');
             if (p1.specialCooldown > 0) {
@@ -1679,19 +1904,51 @@
             const winnerText = document.getElementById('winnerText');
             const gameStats = document.getElementById('gameStats');
 
-            if (victory || players[0].health > 0) {
-                winnerText.textContent = '🎉 VICTORY!';
-                winnerText.className = 'winner-blue';
-            } else {
-                winnerText.textContent = '💀 DEFEAT';
-                winnerText.className = 'winner-red';
-            }
+            if (gameMode === 'multi') {
+                // Multiplayer - determine winner
+                const p1Alive = players[0].health > 0;
+                const p2Alive = players[1].health > 0;
 
-            gameStats.innerHTML = `
-                Waves Survived: ${wave}<br>
-                Total Kills: ${players[0].kills}<br>
-                Coins Earned: ${players[0].coins + players[0].kills * 10}
-            `;
+                if (p1Alive && !p2Alive) {
+                    winnerText.textContent = '🎉 PLAYER 1 WINS!';
+                    winnerText.className = 'winner-blue';
+                } else if (!p1Alive && p2Alive) {
+                    winnerText.textContent = '🎉 PLAYER 2 WINS!';
+                    winnerText.className = 'winner-red';
+                } else {
+                    // Both died or both alive - compare kills
+                    if (players[0].kills > players[1].kills) {
+                        winnerText.textContent = '🎉 PLAYER 1 WINS!';
+                        winnerText.className = 'winner-blue';
+                    } else if (players[1].kills > players[0].kills) {
+                        winnerText.textContent = '🎉 PLAYER 2 WINS!';
+                        winnerText.className = 'winner-red';
+                    } else {
+                        winnerText.textContent = "🤝 IT'S A TIE!";
+                        winnerText.className = '';
+                    }
+                }
+
+                gameStats.innerHTML = `
+                    <span style="color: #4ecdc4">P1: ${players[0].kills} kills, ${Math.floor(players[0].health)} HP</span><br>
+                    <span style="color: #ff6b6b">P2: ${players[1].kills} kills, ${Math.floor(players[1].health)} HP</span>
+                `;
+            } else {
+                // Single player / Endless
+                if (victory || players[0].health > 0) {
+                    winnerText.textContent = '🎉 VICTORY!';
+                    winnerText.className = 'winner-blue';
+                } else {
+                    winnerText.textContent = '💀 DEFEAT';
+                    winnerText.className = 'winner-red';
+                }
+
+                gameStats.innerHTML = `
+                    Waves Survived: ${wave}<br>
+                    Total Kills: ${players[0].kills}<br>
+                    Coins Earned: ${players[0].coins + players[0].kills * 10}
+                `;
+            }
 
             document.getElementById('gameOver').style.display = 'flex';
         }
@@ -1830,11 +2087,19 @@
             }
             ctx.globalAlpha = 1;
 
-            // Aim lines
+            // Aim lines (mouse aiming)
             for (let i = 0; i < 2; i++) {
                 if (players[i].aiming && players[i].aimStart && players[i].aimEnd) {
                     drawAimLine(players[i], i === 0 ? '#4ecdc4' : '#ff6b6b', i);
                 }
+            }
+
+            // Keyboard aim indicators (always show in multiplayer, show P1 in single player too)
+            if (!players[0].aiming) {
+                drawKeyboardAimIndicator(0);
+            }
+            if (gameMode === 'multi' && !players[1].aiming) {
+                drawKeyboardAimIndicator(1);
             }
 
             // Health bars on castles
@@ -2417,6 +2682,77 @@
             ctx.font = '10px sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText(`${remaining} enemies remaining`, CONFIG.CANVAS_WIDTH / 2, y + 22);
+        }
+
+        function drawKeyboardAimIndicator(playerIndex) {
+            const aim = keyboardAim[playerIndex];
+            const tower = towers[playerIndex];
+            const startX = tower.x + tower.width / 2;
+            const startY = tower.y + 40;
+
+            const color = playerIndex === 0 ? '#4ecdc4' : '#ff6b6b';
+            const angleRad = aim.angle * Math.PI / 180;
+            const vx = Math.cos(angleRad) * aim.power;
+            const vy = -Math.sin(angleRad) * aim.power;
+
+            // Trajectory dots
+            let px = startX;
+            let py = startY;
+            let pvx = playerIndex === 0 ? Math.abs(vx) : -Math.abs(vx);
+            let pvy = vy;
+
+            ctx.fillStyle = color;
+            for (let i = 0; i < 20; i++) {
+                px += pvx * 3;
+                py += pvy * 3;
+                pvy += CONFIG.GRAVITY * 3;
+
+                if (py > CONFIG.GROUND_Y) break;
+
+                const alpha = 0.6 - (i / 20) * 0.4;
+                const size = 3 - (i / 20) * 1.5;
+
+                ctx.globalAlpha = alpha;
+                ctx.beginPath();
+                ctx.arc(px, py, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+
+            // Power and angle indicator
+            const indicatorX = playerIndex === 0 ? 20 : CONFIG.CANVAS_WIDTH - 170;
+            const indicatorY = CONFIG.GROUND_Y - 100;
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+            ctx.beginPath();
+            ctx.roundRect(indicatorX, indicatorY, 150, 75, 8);
+            ctx.fill();
+
+            ctx.fillStyle = color;
+            ctx.font = 'bold 11px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Angle: ${Math.floor(aim.angle)}°`, indicatorX + 10, indicatorY + 18);
+
+            // Power bar
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.fillRect(indicatorX + 10, indicatorY + 28, 130, 10);
+
+            const powerPercent = aim.power / CONFIG.MAX_POWER;
+            const hue = (1 - powerPercent) * 120;
+            ctx.fillStyle = `hsl(${hue}, 80%, 50%)`;
+            ctx.fillRect(indicatorX + 10, indicatorY + 28, 130 * powerPercent, 10);
+
+            ctx.fillStyle = '#fff';
+            ctx.fillText(`Power: ${Math.floor(powerPercent * 100)}%`, indicatorX + 10, indicatorY + 52);
+
+            // Control hints
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.font = '9px sans-serif';
+            if (playerIndex === 0) {
+                ctx.fillText('A/D: Aim  W/S: Power  SPACE: Fire', indicatorX + 10, indicatorY + 72);
+            } else {
+                ctx.fillText('←/→: Aim  ↑/↓: Power  ENTER: Fire', indicatorX + 10, indicatorY + 72);
+            }
         }
 
         // Polyfill for roundRect if not available
