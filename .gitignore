@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Testing
+.playwright-mcp/
+
+# Claude
+.claude/
+
+# Test files
+test-game.cjs
+test-game.mjs
+
+# Package files (dev only)
+package.json
+package-lock.json

@@ -169,6 +169,374 @@
         #gameCanvas {
             border-radius: 12px;
             box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
+            max-width: 100vw;
+            max-height: 70vh;
+            touch-action: none;
+        }
+
+        @media (max-width: 900px) {
+            #gameCanvas {
+                border-radius: 0;
+                max-height: 55vh;
+            }
+
+            #topHUD {
+                padding: 5px 8px;
+            }
+
+            .player-hud {
+                padding: 6px 10px;
+                min-width: 120px;
+                font-size: 0.8rem;
+            }
+
+            .player-name {
+                font-size: 0.75rem;
+            }
+
+            #bottomHUD {
+                flex-wrap: nowrap;
+                gap: 5px;
+                padding: 5px 10px;
+                bottom: 5px;
+            }
+
+            .action-btn {
+                padding: 6px 10px;
+                font-size: 0.65rem;
+                gap: 4px;
+            }
+
+            .action-btn span:first-child {
+                font-size: 1rem;
+            }
+
+            .wave-indicator {
+                padding: 5px 12px;
+                font-size: 0.8rem;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .menu-btn {
+                width: 240px;
+                padding: 0.9rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .instructions-box {
+                max-width: 90vw;
+                padding: 0.8rem;
+            }
+
+            .instructions-box p {
+                font-size: 0.8rem;
+                margin: 0.3rem 0;
+            }
+
+            .logo-egg {
+                font-size: 3rem;
+            }
+        }
+
+        /* Landscape mobile - optimized for gameplay */
+        @media (max-height: 500px) and (orientation: landscape) {
+            body {
+                padding: 0;
+                margin: 0;
+            }
+
+            /* Compact menu for landscape - horizontal layout */
+            #menu {
+                padding: 8px 15px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                min-height: 100vh;
+            }
+
+            #menu h1 {
+                font-size: 1.3rem;
+                margin-bottom: 0.1rem;
+            }
+
+            #menu .subtitle {
+                font-size: 0.6rem;
+                margin-bottom: 0.4rem;
+            }
+
+            #menu .logo-egg {
+                font-size: 1.3rem;
+            }
+
+            #menu .logo-container {
+                margin-bottom: 0.2rem;
+            }
+
+            #menu .menu-buttons {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.4rem;
+                margin-bottom: 0.4rem;
+            }
+
+            #menu .menu-btn {
+                width: auto;
+                min-width: 100px;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.6rem;
+                letter-spacing: 0.5px;
+                border-radius: 12px;
+            }
+
+            #menu .difficulty-select {
+                margin-bottom: 0.3rem;
+                gap: 6px;
+            }
+
+            #menu .diff-btn {
+                padding: 4px 12px;
+                font-size: 0.6rem;
+            }
+
+            #menu .instructions-box {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                gap: 15px;
+                max-width: 100%;
+                padding: 0.4rem;
+                margin-top: 0.3rem;
+            }
+
+            #menu .instructions-box p {
+                font-size: 0.5rem;
+                margin: 0;
+            }
+
+            #menu .creator-credit {
+                margin-top: 0.3rem;
+                font-size: 0.5rem;
+            }
+
+            #gameContainer {
+                width: 100vw;
+                height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            #gameCanvas {
+                width: 100vw !important;
+                height: 100vh !important;
+                max-width: none !important;
+                max-height: none !important;
+                object-fit: cover;
+                border-radius: 0;
+            }
+
+            /* Bottom buttons - centered at very bottom */
+            #bottomHUD {
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                right: auto;
+                gap: 2px;
+                padding: 2px 4px;
+                background: transparent;
+                border-radius: 0;
+                justify-content: center;
+            }
+
+            .action-btn {
+                padding: 0;
+                font-size: 0;
+                border-radius: 2px;
+                opacity: 0.6;
+                background: rgba(0,0,0,0.3) !important;
+                box-shadow: none !important;
+                border: none !important;
+                width: 18px;
+                height: 18px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .action-btn:active {
+                opacity: 1;
+            }
+
+            .action-btn span:first-child {
+                font-size: 10px;
+            }
+
+            /* Hide text on landscape mobile */
+            .action-btn .btn-text {
+                display: none;
+            }
+
+            /* Special button styles */
+            .action-btn.repair-btn,
+            .action-btn.upgrade-btn,
+            .action-btn.special-btn {
+                background: rgba(255,255,255,0.1) !important;
+            }
+
+            /* Top HUD - show health and coins */
+            #topHUD {
+                padding: 3px 6px;
+                top: 0;
+                left: 0;
+                right: 0;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: flex-start;
+                background: transparent;
+                height: auto;
+            }
+
+            .player-hud,
+            .player-hud.p1,
+            .player-hud.p2 {
+                padding: 3px 6px;
+                min-width: auto;
+                font-size: 0.5rem;
+                border: none !important;
+                border-radius: 6px;
+                background: rgba(0, 0, 0, 0.5) !important;
+                backdrop-filter: none;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1px;
+            }
+
+            .player-hud.p2 {
+                align-items: flex-end;
+            }
+
+            /* Hide player name */
+            .player-name {
+                display: none;
+            }
+
+            .hud-row {
+                font-size: 0.5rem;
+                gap: 3px;
+                margin: 0;
+                display: flex;
+                align-items: center;
+            }
+
+            .p2 .hud-row {
+                flex-direction: row-reverse;
+            }
+
+            /* Show health and coins, hide kills */
+            .hud-row:nth-child(3) {
+                display: flex;
+            }
+
+            .hud-row:nth-child(4) {
+                display: none;
+            }
+
+            .health-bar-container {
+                width: 45px;
+                height: 6px;
+            }
+
+            /* Wave indicator centered */
+            #centerHUD {
+                position: absolute;
+                top: 3px;
+                left: 50%;
+                transform: translateX(-50%);
+                height: auto;
+                display: flex;
+                align-items: center;
+            }
+
+            .wave-indicator {
+                padding: 3px 10px;
+                font-size: 0.55rem;
+                border: 1px solid rgba(255, 217, 61, 0.4);
+                background: rgba(0, 0, 0, 0.5);
+                border-radius: 10px;
+                color: #ffd93d;
+            }
+
+            .combo-display {
+                font-size: 0.7rem;
+                top: 28px;
+            }
+
+            /* Compact overlays for landscape mobile */
+            #pauseOverlay h2,
+            #gameOver h2 {
+                font-size: 1.4rem;
+                margin-bottom: 0.4rem;
+            }
+
+            #pauseOverlay .menu-btn,
+            #gameOver .menu-btn {
+                width: 160px;
+                padding: 0.5rem 0.8rem;
+                font-size: 0.7rem;
+                margin-top: 0.3rem;
+            }
+
+            #gameOver .stats {
+                font-size: 0.75rem;
+                margin-bottom: 0.4rem;
+            }
+
+            /* Compact upgrade panel */
+            #upgradePanel {
+                padding: 12px;
+                min-width: auto;
+                max-width: 90vw;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .upgrade-title {
+                font-size: 0.9rem;
+                margin-bottom: 8px;
+            }
+
+            .upgrade-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
+            }
+
+            .upgrade-item {
+                padding: 6px;
+            }
+
+            .upgrade-item h4 {
+                font-size: 0.7rem;
+            }
+
+            .upgrade-item p {
+                font-size: 0.6rem;
+                margin-bottom: 3px;
+            }
+
+            .close-panel {
+                font-size: 1rem;
+                top: 6px;
+                right: 6px;
+            }
         }
 
         #topHUD {
@@ -579,6 +947,238 @@
             margin-left: auto;
             margin-right: auto;
         }
+
+        /* Small mobile screens */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 0.9rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .logo-egg {
+                font-size: 2.5rem;
+            }
+
+            .menu-btn {
+                width: 200px;
+                padding: 0.8rem 1rem;
+                font-size: 0.8rem;
+                letter-spacing: 1px;
+            }
+
+            .diff-btn {
+                padding: 6px 14px;
+                font-size: 0.8rem;
+            }
+
+            .instructions-box {
+                padding: 0.6rem;
+                margin-top: 1rem;
+            }
+
+            .instructions-box p {
+                font-size: 0.75rem;
+            }
+
+            .creator-credit {
+                margin-top: 1rem;
+                font-size: 0.75rem;
+            }
+
+            /* Minimal bottom HUD - tiny icon buttons */
+            #bottomHUD {
+                gap: 3px;
+                padding: 2px 4px;
+                bottom: 2px;
+            }
+
+            .action-btn {
+                padding: 4px 6px;
+                font-size: 0.5rem;
+                border-radius: 6px;
+                letter-spacing: 0;
+            }
+
+            .action-btn span:first-child {
+                font-size: 0.75rem;
+            }
+
+            /* Hide text labels on very small screens, show only icons */
+            .action-btn .btn-text {
+                display: none;
+            }
+
+            /* Single-line minimal HUD for small screens */
+            #topHUD {
+                padding: 0;
+                top: 0;
+                left: 0;
+                right: 0;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                background: rgba(0, 0, 0, 0.6);
+                height: 24px;
+            }
+
+            .player-hud {
+                padding: 2px 6px;
+                min-width: auto;
+                font-size: 0.6rem;
+                border: none;
+                border-radius: 0;
+                background: transparent;
+                backdrop-filter: none;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 4px;
+            }
+
+            .player-hud.p1 {
+                background: transparent;
+            }
+
+            .player-hud.p2 {
+                background: transparent;
+                flex-direction: row-reverse;
+            }
+
+            /* Hide player name on small screens */
+            .player-name {
+                display: none;
+            }
+
+            /* Only show health row, hide others */
+            .hud-row {
+                font-size: 0.65rem;
+                gap: 3px;
+                margin: 0;
+            }
+
+            .hud-row:nth-child(n+3) {
+                display: none;
+            }
+
+            .health-bar-container {
+                width: 50px;
+                height: 8px;
+            }
+
+            /* Move wave indicator to top bar */
+            #centerHUD {
+                position: absolute;
+                top: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                height: 24px;
+                display: flex;
+                align-items: center;
+            }
+
+            .wave-indicator {
+                padding: 2px 10px;
+                font-size: 0.55rem;
+                border: none;
+                background: rgba(255, 217, 61, 0.2);
+                border-radius: 0 0 8px 8px;
+            }
+
+            .combo-display {
+                font-size: 0.85rem;
+                top: 26px;
+            }
+
+            #upgradePanel {
+                min-width: 280px;
+                padding: 15px;
+                max-width: 95vw;
+            }
+
+            .upgrade-title {
+                font-size: 1.1rem;
+            }
+
+            .upgrade-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .upgrade-item {
+                padding: 10px;
+            }
+
+            .upgrade-item h4 {
+                font-size: 0.9rem;
+            }
+
+            .upgrade-item p {
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Rotate device prompt for portrait mode on mobile */
+        #rotatePrompt {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 15, 0.98);
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #rotatePrompt .rotate-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: rotateHint 2s ease-in-out infinite;
+        }
+
+        @keyframes rotateHint {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-15deg); }
+            75% { transform: rotate(15deg); }
+        }
+
+        #rotatePrompt h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #ffd93d;
+        }
+
+        #rotatePrompt p {
+            color: #888;
+            font-size: 0.95rem;
+            max-width: 280px;
+        }
+
+        #rotatePrompt .dismiss-btn {
+            margin-top: 1.5rem;
+            padding: 10px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        /* Show rotate prompt in portrait mode on small devices during gameplay */
+        @media (max-width: 768px) and (orientation: portrait) {
+            #rotatePrompt.game-active {
+                display: flex;
+            }
+        }
     </style>
 </head>
 <body>
@@ -608,8 +1208,8 @@
         </div>
 
         <div class="instructions-box" id="soloInstructions">
-            <p><span>🖱️</span> Click & drag to aim, release to fire</p>
-            <p><span>🥚</span> Hit egg warriors twice to defeat them</p>
+            <p><span>🎯</span> Drag to aim, release to fire</p>
+            <p><span>🥚</span> Hit warriors twice to defeat them</p>
             <p><span>💰</span> Earn coins for upgrades & repairs</p>
         </div>
 
@@ -673,16 +1273,16 @@
 
         <div id="bottomHUD">
             <button class="action-btn repair-btn" id="repairBtn" onclick="repair()">
-                <span>🔧</span> Repair (25)
+                <span>🔧</span><span class="btn-text"> Repair (25)</span>
             </button>
             <button class="action-btn repair-btn" id="repairBtn2" onclick="repair(2)" style="display: none;">
-                <span>🔧</span> P2 Repair (25)
+                <span>🔧</span><span class="btn-text"> P2 Repair (25)</span>
             </button>
             <button class="action-btn upgrade-btn" onclick="toggleUpgradePanel()">
-                <span>⬆️</span> Upgrades
+                <span>⬆️</span><span class="btn-text"> Upgrades</span>
             </button>
             <button class="action-btn special-btn" id="specialBtn" onclick="useSpecial()">
-                <span>⚡</span> Egg Storm
+                <span>⚡</span><span class="btn-text"> Egg Storm</span>
             </button>
             <button class="action-btn pause-btn" onclick="togglePause()">⏸️</button>
             <button class="action-btn back-btn" onclick="backToMenu()">✕</button>
@@ -929,20 +1529,21 @@
             if (mode === 'single' || mode === 'endless') {
                 document.getElementById('p2Name').textContent = 'ENEMY';
                 document.getElementById('repairBtn2').style.display = 'none';
-                repairBtn.innerHTML = '<span>🔧</span> Repair (25)';
+                repairBtn.innerHTML = '<span>🔧</span><span class="btn-text"> Repair (25)</span>';
                 // Show upgrades and special in solo modes
                 document.querySelector('.upgrade-btn').style.display = 'flex';
                 document.getElementById('specialBtn').style.display = 'flex';
             } else {
                 document.getElementById('p2Name').textContent = 'PLAYER 2';
                 document.getElementById('repairBtn2').style.display = 'flex';
-                repairBtn.innerHTML = '<span>🔧</span> P1 Repair (25)';
+                repairBtn.innerHTML = '<span>🔧</span><span class="btn-text"> P1 Repair (25)</span>';
                 // Hide upgrades and special in multiplayer for fairness
                 document.querySelector('.upgrade-btn').style.display = 'none';
                 document.getElementById('specialBtn').style.display = 'none';
             }
 
             initGame();
+            showRotatePrompt();
         }
 
         function backToMenu() {
@@ -950,6 +1551,7 @@
             gamePaused = false;
             document.getElementById('menu').style.display = 'block';
             document.getElementById('gameContainer').style.display = 'none';
+            hideRotatePrompt();
         }
 
         function initGame() {
@@ -1077,7 +1679,9 @@
             const x = (e.clientX - rect.left) * (CONFIG.CANVAS_WIDTH / rect.width);
             const y = (e.clientY - rect.top) * (CONFIG.CANVAS_HEIGHT / rect.height);
 
-            if (e.button === 0 && x < CONFIG.CANVAS_WIDTH / 2) {
+            // In single player, allow aiming from anywhere on screen
+            // In multiplayer, left half for P1, right half for P2
+            if (e.button === 0 && (gameMode !== 'multi' || x < CONFIG.CANVAS_WIDTH / 2)) {
                 players[0].aiming = true;
                 players[0].aimStart = { x: towers[0].x + towers[0].width / 2, y: towers[0].y + 40 };
                 players[0].aimEnd = { x, y };
@@ -1232,9 +1836,9 @@
             });
 
             // Spatula animation
-            player.spatula.targetAngle = playerIndex === 0 ? 45 : 135;
+            player.spatula.targetAngle = 135;
             setTimeout(() => {
-                player.spatula.targetAngle = playerIndex === 0 ? -45 : 225;
+                player.spatula.targetAngle = 225;
             }, 150);
 
             player.lastShot = now;
@@ -1293,9 +1897,9 @@
             });
 
             // Spatula animation
-            player.spatula.targetAngle = playerIndex === 0 ? 45 : 135;
+            player.spatula.targetAngle = 135;
             setTimeout(() => {
-                player.spatula.targetAngle = playerIndex === 0 ? -45 : 225;
+                player.spatula.targetAngle = 225;
             }, 150);
 
             player.lastShot = now;
@@ -1927,10 +2531,10 @@
             const specialBtn = document.getElementById('specialBtn');
             if (p1.specialCooldown > 0) {
                 specialBtn.disabled = true;
-                specialBtn.innerHTML = `<span>⚡</span> ${Math.ceil(p1.specialCooldown / 1000)}s`;
+                specialBtn.innerHTML = `<span>⚡</span><span class="btn-text"> ${Math.ceil(p1.specialCooldown / 1000)}s</span>`;
             } else {
                 specialBtn.disabled = false;
-                specialBtn.innerHTML = `<span>⚡</span> Egg Storm`;
+                specialBtn.innerHTML = `<span>⚡</span><span class="btn-text"> Egg Storm</span>`;
             }
         }
 
@@ -2727,6 +3331,9 @@
         }
 
         function drawKeyboardAimIndicator(playerIndex) {
+            // Don't show on mobile/touch devices
+            if ('ontouchstart' in window || window.innerWidth < 900) return;
+
             const aim = keyboardAim[playerIndex];
             const tower = towers[playerIndex];
             const startX = tower.x + tower.width / 2;
@@ -2832,6 +3439,48 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Preload nothing, it's all procedural!
         });
+
+        // Rotate prompt management
+        function showRotatePrompt() {
+            const prompt = document.getElementById('rotatePrompt');
+            if (prompt && window.innerWidth <= 768 && window.innerHeight > window.innerWidth) {
+                prompt.classList.add('game-active');
+            }
+        }
+
+        function hideRotatePrompt() {
+            const prompt = document.getElementById('rotatePrompt');
+            if (prompt) {
+                prompt.classList.remove('game-active');
+            }
+        }
+
+        function dismissRotatePrompt() {
+            const prompt = document.getElementById('rotatePrompt');
+            if (prompt) {
+                prompt.style.display = 'none';
+            }
+        }
+
+        // Check orientation on resize
+        window.addEventListener('resize', () => {
+            const prompt = document.getElementById('rotatePrompt');
+            if (prompt && prompt.style.display !== 'none') {
+                if (window.innerWidth > window.innerHeight) {
+                    prompt.classList.remove('game-active');
+                } else if (gameRunning) {
+                    prompt.classList.add('game-active');
+                }
+            }
+        });
     </script>
+
+    <!-- Rotate device prompt -->
+    <div id="rotatePrompt">
+        <div class="rotate-icon">📱</div>
+        <h2>Rotate Your Device</h2>
+        <p>This game plays best in landscape mode. Please rotate your device for the best experience.</p>
+        <button class="dismiss-btn" onclick="dismissRotatePrompt()">Play Anyway</button>
+    </div>
 </body>
 </html>
