@@ -326,6 +326,12 @@
                 font-size: 0.5rem;
             }
 
+            #menu .fullscreen-menu-btn {
+                margin-top: 0.3rem;
+                padding: 0.3rem 0.6rem;
+                font-size: 0.5rem;
+            }
+
             #gameContainer {
                 width: 100vw;
                 height: 100vh;
@@ -339,7 +345,7 @@
                 height: 100vh !important;
                 max-width: none !important;
                 max-height: none !important;
-                object-fit: cover;
+                object-fit: contain;
                 border-radius: 0;
             }
 
@@ -927,6 +933,23 @@
         .diff-btn.normal.selected { background: #f59e0b; }
         .diff-btn.hard.selected { background: #ef4444; }
 
+        .fullscreen-menu-btn {
+            margin-top: 1.5rem;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #aaa;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .fullscreen-menu-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
         .creator-credit {
             margin-top: 2rem;
             color: #555;
@@ -1219,6 +1242,8 @@
             <p style="color: #888; font-size: 0.85rem;">Mouse: P1 left-click, P2 right-click drag</p>
         </div>
 
+        <button class="fullscreen-menu-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+
         <p class="creator-credit">Created by Leonski</p>
     </div>
 
@@ -1285,6 +1310,7 @@
                 <span>⚡</span><span class="btn-text"> Egg Storm</span>
             </button>
             <button class="action-btn pause-btn" onclick="togglePause()">⏸️</button>
+            <button class="action-btn fullscreen-btn" onclick="toggleFullscreen()">⛶</button>
             <button class="action-btn back-btn" onclick="backToMenu()">✕</button>
         </div>
 
@@ -1716,21 +1742,72 @@
             }
         }
 
+        // Touch handling with drag delay
+        let touchState = {
+            startPos: null,
+            startTime: null,
+            isDragging: false
+        };
+        const TOUCH_DRAG_THRESHOLD = 20;  // pixels before drag starts
+        const TOUCH_DRAG_DELAY = 150;     // ms before drag starts
+
         function handleTouchStart(e) {
             e.preventDefault();
+            if (gamePaused) return;
+
             const touch = e.touches[0];
-            handleMouseDown({ button: 0, clientX: touch.clientX, clientY: touch.clientY });
+            touchState.startPos = { x: touch.clientX, y: touch.clientY };
+            touchState.startTime = Date.now();
+            touchState.isDragging = false;
         }
 
         function handleTouchMove(e) {
             e.preventDefault();
+            if (gamePaused || !touchState.startPos) return;
+
             const touch = e.touches[0];
-            handleMouseMove({ clientX: touch.clientX, clientY: touch.clientY });
+            const dx = touch.clientX - touchState.startPos.x;
+            const dy = touch.clientY - touchState.startPos.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const elapsed = Date.now() - touchState.startTime;
+
+            // Start aiming only after threshold AND delay
+            if (!touchState.isDragging && distance >= TOUCH_DRAG_THRESHOLD && elapsed >= TOUCH_DRAG_DELAY) {
+                touchState.isDragging = true;
+                // Start aiming from touch start position
+                const rect = canvas.getBoundingClientRect();
+                const x = (touchState.startPos.x - rect.left) * (CONFIG.CANVAS_WIDTH / rect.width);
+                const y = (touchState.startPos.y - rect.top) * (CONFIG.CANVAS_HEIGHT / rect.height);
+                players[0].aiming = true;
+                players[0].aimStart = { x: towers[0].x + towers[0].width / 2, y: towers[0].y + 40 };
+                players[0].aimEnd = { x, y };
+            }
+
+            // Update aim position while dragging
+            if (touchState.isDragging && players[0].aiming) {
+                const rect = canvas.getBoundingClientRect();
+                const x = (touch.clientX - rect.left) * (CONFIG.CANVAS_WIDTH / rect.width);
+                const y = (touch.clientY - rect.top) * (CONFIG.CANVAS_HEIGHT / rect.height);
+                players[0].aimEnd = { x, y };
+            }
         }
 
         function handleTouchEnd(e) {
             e.preventDefault();
-            handleMouseUp({ button: 0 });
+            if (gamePaused) return;
+
+            if (touchState.isDragging && players[0].aiming) {
+                // Was dragging - fire with custom aim
+                fireEgg(0);
+                players[0].aiming = false;
+            } else if (touchState.startPos) {
+                // Was just a tap - fire with default aim
+                fireEgg(0);
+            }
+
+            touchState.startPos = null;
+            touchState.startTime = null;
+            touchState.isDragging = false;
         }
 
         function handleKeyDown(e) {
@@ -2057,6 +2134,23 @@
             if (!gamePaused) {
                 lastTime = performance.now();
                 gameLoop();
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                const elem = document.documentElement;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen(); // iOS Safari
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen(); // iOS Safari
+                }
             }
         }
 
@@ -3331,8 +3425,9 @@
         }
 
         function drawKeyboardAimIndicator(playerIndex) {
-            // Don't show on mobile/touch devices
-            if ('ontouchstart' in window || window.innerWidth < 900) return;
+            // Only show when NOT on touch device or when using keyboard
+            // On touch devices, trajectory only shows during active drag
+            if ('ontouchstart' in window) return;
 
             const aim = keyboardAim[playerIndex];
             const tower = towers[playerIndex];
